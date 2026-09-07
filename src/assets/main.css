@@ -1,0 +1,102 @@
+@import 'tailwindcss';
+@plugin "daisyui";
+
+@plugin "daisyui/theme" {
+  name: 'ArenaTV';
+  default: true;
+  prefersdark: true;
+  color-scheme: 'dark';
+  --color-base-100: oklch(0% 0 0);
+  --color-base-200: oklch(19% 0 0);
+  --color-base-300: oklch(22% 0 0);
+  --color-base-content: oklch(87.609% 0 0);
+  --color-primary: oklch(0.690163 0.146582 164.2456);
+  --color-primary-content: oklch(100% 0 0);
+  --color-secondary: oklch(35% 0 0);
+  --color-secondary-content: oklch(100% 0 0);
+  --color-accent: oklch(35% 0 0);
+  --color-accent-content: oklch(100% 0 0);
+  --color-neutral: oklch(35% 0 0);
+  --color-neutral-content: oklch(100% 0 0);
+  --color-info: oklch(50% 0.134 242.749);
+  --color-info-content: oklch(98% 0.003 247.858);
+  --color-success: oklch(70% 0.14 182.503);
+  --color-success-content: oklch(12% 0.042 264.695);
+  --color-warning: oklch(96.798% 0.211 109.769);
+  --color-warning-content: oklch(19.359% 0.042 109.769);
+  --color-error: oklch(64% 0.246 16.439);
+  --color-error-content: oklch(12.559% 0.051 29.233);
+  --radius-selector: 2rem;
+  --radius-field: 0.5rem;
+  --radius-box: 1rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    --lime: #00b783;
+    --ink: #080a08;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body,
+  #app {
+    min-height: 100%;
+    margin: 0;
+    background: var(--ink);
+    color: #f7f8f2;
+    font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+  }
+
+  body {
+    overflow: hidden;
+  }
+
+  button,
+  input {
+    font: inherit;
+  }
+
+  button:focus-visible,
+  input:focus-visible,
+  [tabindex='0']:focus-visible {
+    outline: 3px solid var(--lime);
+    outline-offset: 4px;
+    box-shadow:
+      0 0 0 7px rgba(201, 255, 74, 0.16),
+      0 18px 42px rgba(0, 0, 0, 0.6);
+    transform: scale(1.025);
+  }
+
+  ::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.screen-grain {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 0.7px, transparent 0.7px);
+  background-size: 5px 5px;
+  opacity: 0.14;
+}
+
+.glass {
+  background: linear-gradient(130deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.025));
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  backdrop-filter: blur(18px);
+}
+
+.lime-grid {
+  background-image:
+    linear-gradient(rgba(201, 255, 74, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201, 255, 74, 0.08) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
