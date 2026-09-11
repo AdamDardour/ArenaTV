@@ -8,6 +8,8 @@ export function useXtream() {
     initializeSession: store.initializeSession,
     reauthenticate: store.reauthenticate,
     refreshLibrary: store.refreshLibrary,
+    refreshChannels: store.refreshChannels,
+    switchProfile: store.switchProfile,
     logout: store.logout,
     getStreamPlaybackUrl: store.getStreamPlaybackUrl,
     candidatesFor: store.candidatesFor,

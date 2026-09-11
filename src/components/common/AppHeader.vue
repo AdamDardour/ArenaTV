@@ -1,14 +1,22 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useXtream } from '@/composables/useXtream'
+import { useProfileStore } from '@/stores/profiles'
 
 const route = useRoute()
 const router = useRouter()
 const { liveStreams } = useXtream()
+const profileStore = useProfileStore()
+
+const profile = computed(
+  () => profileStore.activeProfile ?? profileStore.defaultProfile ?? profileStore.profiles[0] ?? null,
+)
 
 const links = [
   { label: 'HOME', name: 'home' },
   { label: 'LIVE TV', name: 'channels' },
+  { label: 'SETTINGS', name: 'settings' },
 ]
 </script>
 
@@ -16,7 +24,7 @@ const links = [
   <header
     class="navbar sticky top-0 z-30 min-h-0 border-b border-white/10 bg-[#080a08]/10 px-[5vw] py-4 backdrop-blur-xl">
     <div class="navbar-start gap-6">
-      <button tabindex="0" @click="router.push('/home')" class="btn btn-ghost ">
+      <button tabindex="0" @click="router.push('/home')" class="btn btn-ghost">
         <img src="/logo.svg" alt="ArenaTV" class="w-12" />
         <span class="ml-2">ArenaTV</span>
       </button>
@@ -30,12 +38,21 @@ const links = [
         </button>
       </nav>
     </div>
-    <div class="navbar-end">
+    <div class="navbar-end flex items-center gap-4">
+
       <div class="hidden items-center gap-3 text-xs font-bold uppercase tracking-[.14em] sm:flex">
         <span class="size-2 rounded-full bg-primary shadow-[0_0_12px_#00B783]" />
         Library connected
         <span class="badge badge-ghost border-white/10 text-white/45">{{ liveStreams.length }} channels</span>
       </div>
+      <button v-if="profile" tabindex="0" @click="router.push('/settings')"
+        class="hidden items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-left text-xs font-bold uppercase tracking-[0.14em] text-white/80 sm:flex">
+        <span class="flex size-7 items-center justify-center rounded-full text-[10px]"
+          :style="{ backgroundColor: profile.avatarColor, color: '#08110b' }">
+          {{ profile.avatarInitial }}
+        </span>
+        {{ profile.name }}
+      </button>
       <div class="dropdown dropdown-end sm:hidden">
         <button tabindex="0" class="btn btn-ghost btn-square btn-sm" aria-label="Open navigation">
           ☰

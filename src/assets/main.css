@@ -2,86 +2,41 @@
 @plugin "daisyui";
 
 @plugin "daisyui/theme" {
-  name: 'ArenaTV';
+  name: "overbtw";
   default: true;
-  prefersdark: true;
-  color-scheme: 'dark';
+  prefersdark: false;
+  color-scheme: "light";
   --color-base-100: oklch(0% 0 0);
-  --color-base-200: oklch(19% 0 0);
-  --color-base-300: oklch(22% 0 0);
-  --color-base-content: oklch(87.609% 0 0);
-  --color-primary: oklch(0.690163 0.146582 164.2456);
-  --color-primary-content: oklch(100% 0 0);
-  --color-secondary: oklch(35% 0 0);
-  --color-secondary-content: oklch(100% 0 0);
-  --color-accent: oklch(35% 0 0);
-  --color-accent-content: oklch(100% 0 0);
-  --color-neutral: oklch(35% 0 0);
-  --color-neutral-content: oklch(100% 0 0);
-  --color-info: oklch(50% 0.134 242.749);
-  --color-info-content: oklch(98% 0.003 247.858);
-  --color-success: oklch(70% 0.14 182.503);
-  --color-success-content: oklch(12% 0.042 264.695);
-  --color-warning: oklch(96.798% 0.211 109.769);
-  --color-warning-content: oklch(19.359% 0.042 109.769);
-  --color-error: oklch(64% 0.246 16.439);
-  --color-error-content: oklch(12.559% 0.051 29.233);
-  --radius-selector: 2rem;
+  --color-base-200: oklch(20% 0 0);
+  --color-base-300: oklch(26% 0 0);
+  --color-base-content: oklch(98% 0.003 247.858);
+  --color-primary: #00FFA6;
+  --color-primary-content: oklch(12% 0.042 264.695);
+  --color-secondary: #5C0099;
+  --color-secondary-content: oklch(97% 0.014 308.299);
+  --color-accent: #00C9F3;
+  --color-accent-content: oklch(27% 0.041 260.031);
+  --color-neutral: oklch(26% 0 0);
+  --color-neutral-content: oklch(98% 0.003 247.858);
+  --color-info: oklch(68% 0.169 237.323);
+  --color-info-content: oklch(97% 0.013 236.62);
+  --color-success: oklch(77% 0.152 181.912);
+  --color-success-content: oklch(27% 0.041 260.031);
+  --color-warning: oklch(76% 0.188 70.08);
+  --color-warning-content: oklch(98% 0.022 95.277);
+  --color-error: oklch(58% 0.253 17.585);
+  --color-error-content: oklch(97% 0.014 343.198);
+  --radius-selector: 0.5rem;
   --radius-field: 0.5rem;
-  --radius-box: 1rem;
+  --radius-box: 0.25rem;
   --size-selector: 0.25rem;
   --size-field: 0.25rem;
   --border: 1px;
-  --depth: 0;
+  --depth: 1;
   --noise: 0;
 }
 
-@layer base {
-  :root {
-    color-scheme: dark;
-    --lime: #00b783;
-    --ink: #080a08;
-  }
-
-  * {
-    box-sizing: border-box;
-  }
-
-  html,
-  body,
-  #app {
-    min-height: 100%;
-    margin: 0;
-    background: var(--ink);
-    color: #f7f8f2;
-    font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
-  }
-
-  body {
-    overflow: hidden;
-  }
-
-  button,
-  input {
-    font: inherit;
-  }
-
-  button:focus-visible,
-  input:focus-visible,
-  [tabindex='0']:focus-visible {
-    outline: 3px solid var(--lime);
-    outline-offset: 4px;
-    box-shadow:
-      0 0 0 7px rgba(201, 255, 74, 0.16),
-      0 18px 42px rgba(0, 0, 0, 0.6);
-    transform: scale(1.025);
-  }
-
-  ::-webkit-scrollbar {
-    display: none;
-  }
-}
-
+/* ── Glass morphism ──────────────────────────────────────────── */
 .screen-grain {
   background-image: radial-gradient(rgba(255, 255, 255, 0.08) 0.7px, transparent 0.7px);
   background-size: 5px 5px;
@@ -99,4 +54,140 @@
     linear-gradient(rgba(201, 255, 74, 0.08) 1px, transparent 1px),
     linear-gradient(90deg, rgba(201, 255, 74, 0.08) 1px, transparent 1px);
   background-size: 56px 56px;
+}
+
+/* ── TV-safe area spacing ────────────────────────────────────── */
+.tv-safe {
+  padding-left: var(--tv-safe-x);
+  padding-right: var(--tv-safe-x);
+  padding-top: var(--tv-safe-y);
+  padding-bottom: var(--tv-safe-y);
+}
+
+.tv-margin-x {
+  margin-left: var(--tv-safe-x);
+  margin-right: var(--tv-safe-x);
+}
+
+/* ── Skeleton loader animation ───────────────────────────────── */
+.skeleton-pulse {
+  background: linear-gradient(90deg,
+      rgba(255, 255, 255, 0.04) 25%,
+      rgba(255, 255, 255, 0.08) 50%,
+      rgba(255, 255, 255, 0.04) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: 0.75rem;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ── TV-responsive typography & layout ───────────────────────── */
+
+/* 720p and small TVs (≤1280px) */
+@media (max-width: 1280px) {
+  :root {
+    --tv-safe-x: 2.5vw;
+    --tv-safe-y: 2vh;
+  }
+
+  .tv-hero-title {
+    font-size: 2.25rem !important;
+  }
+
+  .tv-section-title {
+    font-size: 1.25rem !important;
+  }
+
+  .tv-grid-matches {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .tv-grid-upcoming {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .tv-grid-channels {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .tv-hero-section {
+    padding: 1.5rem !important;
+    min-height: 12rem !important;
+  }
+
+  .tv-channel-card {
+    padding: 0.625rem 0.75rem !important;
+  }
+}
+
+/* 1080p — default, no overrides needed */
+
+/* 1440p+ */
+@media (min-width: 1921px) {
+  :root {
+    --tv-safe-x: 3.5vw;
+    --tv-safe-y: 3vh;
+  }
+
+  .tv-hero-title {
+    font-size: 3.75rem !important;
+  }
+
+  .tv-grid-matches {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  .tv-grid-upcoming {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  }
+
+  .tv-grid-channels {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}
+
+/* 4K / UHD (≥3840px) */
+@media (min-width: 3840px) {
+  :root {
+    --tv-safe-x: 4vw;
+    --tv-safe-y: 3.5vh;
+  }
+
+  .tv-hero-title {
+    font-size: 4.5rem !important;
+  }
+
+  .tv-section-title {
+    font-size: 2rem !important;
+  }
+
+  .tv-grid-matches {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  }
+
+  .tv-grid-upcoming {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  }
+
+  .tv-grid-channels {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  }
+
+  .tv-hero-section {
+    padding: 3rem !important;
+    min-height: 22rem !important;
+  }
+
+  .tv-channel-card {
+    padding: 1rem 1.25rem !important;
+  }
 }

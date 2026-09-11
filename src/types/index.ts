@@ -54,3 +54,32 @@ export interface ChannelCandidate {
   score: number
   reason: string
 }
+
+// ── Profile system ──────────────────────────────────────────────
+export type ProfileLoginStatus = 'connected' | 'expired' | 'failed' | 'never'
+
+export const PROFILE_COLORS = [
+  '#00b783', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6',
+  '#ec4899', '#06b6d4', '#f97316', '#14b8a6', '#6366f1',
+] as const
+
+export interface IXtreamProfile {
+  id: string
+  name: string
+  serverUrl: string
+  username: string
+  avatarColor: string
+  avatarInitial: string
+  isDefault: boolean
+  lastLoginStatus: ProfileLoginStatus
+  lastLoginAt: string | null
+  createdAt: string
+}
+
+export interface RefreshResult {
+  channelsFound: number
+  newCount: number
+  removedCount: number
+  updatedCount: number
+  categoriesFound: number
+}

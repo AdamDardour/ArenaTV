@@ -1,17 +1,17 @@
-import { computed, ref } from 'vue'
+import { computed, ref, shallowRef } from 'vue'
 import { defineStore } from 'pinia'
-import { Preferences } from '@capacitor/preferences'
 import type {
   ChannelCandidate,
   FootballMatch,
+  RefreshResult,
   XtreamCategory,
   XtreamLiveStream,
   XtreamServerInfo,
   XtreamUserInfo,
 } from '@/types'
+import { useProfileStore } from '@/stores/profiles'
+import * as db from '@/services/db'
 
-const SESSION_KEY = 'arenatv.session.v2'
-const PASSWORD_KEY = 'arenatv.password.v2'
 function normalizeServerUrl(value: string) {
   const input = value.trim()
   const withScheme = /^https?:\/\//i.test(input) ? input : `http://${input}`
@@ -40,8 +40,14 @@ export const useXtreamStore = defineStore('xtream', () => {
   const error = ref<string | null>(null)
   const userInfo = ref<XtreamUserInfo | null>(null)
   const serverInfo = ref<XtreamServerInfo | null>(null)
-  const liveStreams = ref<XtreamLiveStream[]>([])
-  const categories = ref<XtreamCategory[]>([])
+  // Use shallowRef for large arrays — avoids deep reactivity overhead
+  const liveStreams = shallowRef<XtreamLiveStream[]>([])
+  const categories = shallowRef<XtreamCategory[]>([])
+
+  // Refresh progress state
+  const isRefreshing = ref(false)
+  const refreshProgress = ref<RefreshResult | null>(null)
+
   const cleanServerUrl = computed(() =>
     (serverUrl.value.startsWith('http') ? serverUrl.value : `http://${serverUrl.value}`).replace(
       /\/+$/,
@@ -51,31 +57,7 @@ export const useXtreamStore = defineStore('xtream', () => {
   const sportsCategories = computed(() =>
     categories.value.filter((c) => /sport|football|soccer|bein|dazn|tnt/i.test(c.category_name)),
   )
-  // Browser localStorage is intentionally small (often around 5 MB). IPTV catalogues
-  // can be much larger, so keep them in memory rather than letting an optional cache
-  // turn a successful login into a failed one.
-  async function persist() {
-    try {
-      localStorage.setItem(
-        SESSION_KEY,
-        JSON.stringify({ serverUrl: serverUrl.value, username: username.value }),
-      )
-      await Preferences.set({ key: PASSWORD_KEY, value: password.value })
-    } catch {
-      /* remembering the login is optional */
-    }
-  }
-  async function loadStoredSession() {
-    try {
-      const session = JSON.parse(localStorage.getItem(SESSION_KEY) || '{}')
-      serverUrl.value = session.serverUrl ? normalizeServerUrl(session.serverUrl) : ''
-      username.value = session.username || ''
-      const storedPassword = await Preferences.get({ key: PASSWORD_KEY })
-      password.value = storedPassword.value || ''
-    } catch {
-      /* stored session and legacy cache are optional */
-    }
-  }
+
   async function request<T>(action?: string): Promise<T> {
     const query = new URLSearchParams({ username: username.value, password: password.value })
     if (action) query.set('action', action)
@@ -91,6 +73,7 @@ export const useXtreamStore = defineStore('xtream', () => {
       clearTimeout(timer)
     }
   }
+
   async function refreshLibrary() {
     const [categoryData, streamData] = await Promise.all([
       request<XtreamCategory[]>('get_live_categories'),
@@ -99,7 +82,72 @@ export const useXtreamStore = defineStore('xtream', () => {
     categories.value = Array.isArray(categoryData) ? categoryData : []
     liveStreams.value = Array.isArray(streamData) ? streamData : []
     if (!liveStreams.value.length) throw new Error('This account has no live channels.')
+
+    // Persist to IndexedDB for the active profile
+    const profileStore = useProfileStore()
+    const profileId = profileStore.activeProfileId
+    if (profileId) {
+      await db.putChannels(profileId, liveStreams.value)
+      await db.putCategories(profileId, categories.value)
+      await db.putCacheMetadata({
+        profileId,
+        lastUpdated: new Date().toISOString(),
+        channelCount: liveStreams.value.length,
+        categoryCount: categories.value.length,
+      })
+    }
   }
+
+  /** Intelligent channel refresh — diff against cache, preserve user data */
+  async function refreshChannels(): Promise<RefreshResult> {
+    isRefreshing.value = true
+    refreshProgress.value = null
+    try {
+      const [categoryData, streamData] = await Promise.all([
+        request<XtreamCategory[]>('get_live_categories'),
+        request<XtreamLiveStream[]>('get_live_streams'),
+      ])
+
+      const newCategories = Array.isArray(categoryData) ? categoryData : []
+      const newStreams = Array.isArray(streamData) ? streamData : []
+
+      // Compute diff against cached data
+      const profileStore = useProfileStore()
+      const profileId = profileStore.activeProfileId
+      let result: RefreshResult = {
+        channelsFound: newStreams.length,
+        newCount: newStreams.length,
+        removedCount: 0,
+        updatedCount: 0,
+        categoriesFound: newCategories.length,
+      }
+
+      if (profileId) {
+        result = await db.diffChannels(profileId, newStreams)
+        result.categoriesFound = newCategories.length
+
+        // Write updated data to IndexedDB (preserves favorites/recently watched)
+        await db.putChannels(profileId, newStreams)
+        await db.putCategories(profileId, newCategories)
+        await db.putCacheMetadata({
+          profileId,
+          lastUpdated: new Date().toISOString(),
+          channelCount: newStreams.length,
+          categoryCount: newCategories.length,
+        })
+      }
+
+      // Update in-memory state
+      categories.value = newCategories
+      liveStreams.value = newStreams
+      refreshProgress.value = result
+
+      return result
+    } finally {
+      isRefreshing.value = false
+    }
+  }
+
   async function reauthenticate() {
     if (!serverUrl.value || !username.value || !password.value) {
       isAuthenticated.value = false
@@ -121,12 +169,66 @@ export const useXtreamStore = defineStore('xtream', () => {
       return false
     }
   }
+
+  /** Initialize session from the active profile's cached data */
   async function initializeSession() {
-    await loadStoredSession()
-    if (serverUrl.value && username.value && password.value) await reauthenticate()
+    const profileStore = useProfileStore()
+
+    // Load profiles first
+    if (!profileStore.loaded) {
+      await profileStore.loadProfiles()
+    }
+
+    // Auto-migrate legacy session
+    const migrated = await profileStore.migrateFromLegacy()
+
+    // Determine which profile to use
+    const targetProfileId = profileStore.defaultProfileId || migrated?.id || profileStore.activeProfileId
+    if (!targetProfileId) {
+      isInitialized.value = true
+      return
+    }
+
+    const profile = profileStore.profiles.find((p) => p.id === targetProfileId)
+    if (!profile) {
+      isInitialized.value = true
+      return
+    }
+
+    // Load credentials
+    serverUrl.value = profile.serverUrl ? normalizeServerUrl(profile.serverUrl) : ''
+    username.value = profile.username || ''
+    password.value = await profileStore.getPassword(targetProfileId)
+
+    profileStore.setActive(targetProfileId)
+
+    // Load cached data from IndexedDB for instant display
+    try {
+      const [cachedChannels, cachedCategories] = await Promise.all([
+        db.getChannels(targetProfileId),
+        db.getCategories(targetProfileId),
+      ])
+      if (cachedChannels.length) liveStreams.value = cachedChannels
+      if (cachedCategories.length) categories.value = cachedCategories
+    } catch {
+      /* cache is optional */
+    }
+
+    // Attempt authentication
+    if (serverUrl.value && username.value && password.value) {
+      const authenticated = await reauthenticate()
+      if (authenticated) {
+        await profileStore.updateLoginStatus(targetProfileId, 'connected')
+      } else {
+        await profileStore.updateLoginStatus(targetProfileId, 'failed')
+      }
+    }
+
     isInitialized.value = true
   }
-  async function login(url: string, user: string, pass: string) {
+
+  /** Login with explicit credentials — creates/updates a profile */
+  async function login(url: string, user: string, pass: string, profileName?: string) {
     isLoading.value = true
     error.value = null
     username.value = user.trim()
@@ -146,7 +248,28 @@ export const useXtreamStore = defineStore('xtream', () => {
       serverInfo.value = response.server_info || null
       isAuthenticated.value = true
       await refreshLibrary()
-      await persist()
+
+      // Create or update profile
+      const profileStore = useProfileStore()
+      const existing = profileStore.profiles.find(
+        (p) => p.serverUrl === serverUrl.value && p.username === username.value,
+      )
+      if (existing) {
+        profileStore.setActive(existing.id)
+        await profileStore.updateLoginStatus(existing.id, 'connected')
+        // Update password in case it changed
+        await profileStore.updateProfile(existing.id, { password: password.value })
+      } else {
+        const profile = await profileStore.createProfile({
+          name: profileName || username.value,
+          serverUrl: serverUrl.value,
+          username: username.value,
+          password: password.value,
+        })
+        profileStore.setActive(profile.id)
+        await profileStore.updateLoginStatus(profile.id, 'connected')
+      }
+
       return true
     } catch (cause) {
       isAuthenticated.value = false
@@ -156,6 +279,54 @@ export const useXtreamStore = defineStore('xtream', () => {
       isLoading.value = false
     }
   }
+
+  /** Switch to a different profile without re-entering credentials */
+  async function switchProfile(profileId: string) {
+    const profileStore = useProfileStore()
+    const profile = profileStore.profiles.find((p) => p.id === profileId)
+    if (!profile) return false
+
+    isLoading.value = true
+    error.value = null
+
+    // Set credentials from profile
+    serverUrl.value = profile.serverUrl ? normalizeServerUrl(profile.serverUrl) : ''
+    username.value = profile.username
+    password.value = await profileStore.getPassword(profileId)
+
+    profileStore.setActive(profileId)
+
+    // Load cached data from IndexedDB instantly
+    try {
+      const [cachedChannels, cachedCategories] = await Promise.all([
+        db.getChannels(profileId),
+        db.getCategories(profileId),
+      ])
+      if (cachedChannels.length) liveStreams.value = cachedChannels
+      if (cachedCategories.length) categories.value = cachedCategories
+    } catch {
+      /* cache is optional */
+    }
+
+    // Authenticate
+    try {
+      const authenticated = await reauthenticate()
+      if (authenticated) {
+        await profileStore.updateLoginStatus(profileId, 'connected')
+        await refreshLibrary()
+        isLoading.value = false
+        return true
+      } else {
+        await profileStore.updateLoginStatus(profileId, 'failed')
+        isLoading.value = false
+        return false
+      }
+    } catch {
+      isLoading.value = false
+      return false
+    }
+  }
+
   function getStreamPlaybackUrl(stream: XtreamLiveStream) {
     if (stream.direct_source) return stream.direct_source
     // Credentials are query parameters during login but path segments during playback.
@@ -202,6 +373,9 @@ export const useXtreamStore = defineStore('xtream', () => {
       .sort((a, b) => b.score - a.score)
   }
   function logout() {
+    const profileStore = useProfileStore()
+    const profileId = profileStore.activeProfileId
+
     serverUrl.value = ''
     username.value = ''
     password.value = ''
@@ -210,8 +384,13 @@ export const useXtreamStore = defineStore('xtream', () => {
     serverInfo.value = null
     liveStreams.value = []
     categories.value = []
-    localStorage.removeItem(SESSION_KEY)
-    void Preferences.remove({ key: PASSWORD_KEY })
+
+    if (profileId) {
+      void profileStore.updateLoginStatus(profileId, 'never')
+    }
+
+    profileStore.activeProfileId = null
+    localStorage.removeItem('arenatv.activeProfileId')
   }
   return {
     serverUrl,
@@ -221,6 +400,8 @@ export const useXtreamStore = defineStore('xtream', () => {
     isAuthenticated,
     isInitialized,
     isLoading,
+    isRefreshing,
+    refreshProgress,
     error,
     userInfo,
     serverInfo,
@@ -231,6 +412,8 @@ export const useXtreamStore = defineStore('xtream', () => {
     initializeSession,
     reauthenticate,
     refreshLibrary,
+    refreshChannels,
+    switchProfile,
     getStreamPlaybackUrl,
     candidatesFor,
     logout,
