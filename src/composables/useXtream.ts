@@ -5,6 +5,8 @@ export function useXtream() {
   return {
     ...storeToRefs(store),
     login: store.login,
+    initializeSession: store.initializeSession,
+    reauthenticate: store.reauthenticate,
     refreshLibrary: store.refreshLibrary,
     logout: store.logout,
     getStreamPlaybackUrl: store.getStreamPlaybackUrl,

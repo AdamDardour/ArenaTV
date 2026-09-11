@@ -135,7 +135,7 @@
         </div>
         <div class="relative aspect-video bg-black">
           <video :key="playbackUrl" autoplay controls playsinline class="size-full" @error="playerError = true">
-            <source :src="playbackUrl" type="application/x-mpegURL" />
+            <source :src="playbackUrl" :type="playbackMimeType" />
             Your device does not support embedded video playback.
           </video>
           <div v-if="playerError" class="absolute inset-0 grid place-items-center bg-black/85 p-8 text-center">
@@ -275,6 +275,9 @@ onBeforeUnmount(() => observer?.disconnect())
 
 const playbackUrl = computed(() =>
   selectedChannel.value ? getStreamPlaybackUrl(selectedChannel.value) : '',
+)
+const playbackMimeType = computed(() =>
+  playbackUrl.value.endsWith('.m3u8') ? 'application/x-mpegURL' : 'video/mp2t',
 )
 async function play(stream: XtreamLiveStream) {
   playerError.value = false

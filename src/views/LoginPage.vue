@@ -1,11 +1,7 @@
 <template>
-  <main
-    class="relative isolate min-h-screen overflow-hidden bg-[#080a08] px-[7vw] py-[6vh] flex flex-col"
-  >
+  <main class="relative isolate min-h-screen overflow-hidden bg-[#080a08] px-[7vw] py-[6vh] flex flex-col">
     <div class="screen-grain absolute inset-0 -z-10" />
-    <div
-      class="absolute top-[-30vh] right-[8vw] h-[70vh] w-[70vh] rounded-full bg-lime-300/10 blur-[130px] -z-10"
-    />
+    <div class="absolute top-[-30vh] right-[8vw] h-[70vh] w-[70vh] rounded-full bg-lime-300/10 blur-[130px] -z-10" />
     <header class="flex items-center justify-between">
       <div class="flex items-center gap-4">
         <img src="/logo.png" alt="ArenaTV logo" class="w-12" />
@@ -32,45 +28,24 @@
           or credentials.
         </p>
         <div class="mt-10 flex gap-8 text-sm text-white/50">
-          <span>01 Secure connection</span><span>02 Your live library</span
-          ><span>03 Live football data</span>
+          <span>01 Secure connection</span><span>02 Your live library</span><span>03 Live football data</span>
         </div>
       </div>
       <form @submit.prevent="connect" class="border-l border-neutral pl-40 shadow-2xl space-y-4">
         <h2 class="text-2xl font-bold">Welcome back</h2>
         <p class="mt-2 text-sm text-white/50">Connect your IPTV service</p>
-        <input
-          id="server"
-          v-model="host"
-          tabindex="0"
-          autocomplete="url"
-          placeholder="https://provider.example:8080"
-          class="input input-primary w-full"
-        />
-        <input
-          v-model="user"
-          tabindex="0"
-          autocomplete="username"
-          class="input input-primary w-full"
-          placeholder="username"
-        />
-        <input
-          v-model="pass"
-          tabindex="0"
-          type="password"
-          autocomplete="current-password"
-          class="input input-primary w-full"
-          placeholder="password"
-        />
+        <input id="server" v-model="host" tabindex="0" autocomplete="url" placeholder="https://provider.example:8080"
+          class="input input-primary w-full" />
+        <input v-model="user" tabindex="0" autocomplete="username" class="input input-primary w-full"
+          placeholder="username" />
+        <input v-model="pass" tabindex="0" type="password" autocomplete="current-password"
+          class="input input-primary w-full" placeholder="password" />
 
         <label class="label">
           <input type="checkbox" v-model="remember" class="checkbox checkbox-primary" />
           Remember me
         </label>
-        <p
-          v-if="error"
-          class="mt-5 rounded-xl border border-red-400/25 bg-red-400/10 p-3 text-sm text-red-200"
-        >
+        <p v-if="error" class="mt-5 rounded-xl border border-red-400/25 bg-red-400/10 p-3 text-sm text-red-200">
           {{ error }}
         </p>
         <button tabindex="0" :disabled="isLoading" class="btn btn-primary btn-block">
@@ -94,7 +69,12 @@ const host = ref(serverUrl.value)
 const user = ref(username.value)
 const pass = ref('')
 const remember = ref(true)
+host.value = "http://vpns365.xyz"
+user.value = "FQLZFFPT"
+
+pass.value = "V2GWCZZ2"
 useSpatialNav({ defaultFocusSelector: '#server' })
+
 async function connect() {
   if (!host.value || !user.value || !pass.value) return
   if (await login(host.value, user.value, pass.value)) router.push('/home')

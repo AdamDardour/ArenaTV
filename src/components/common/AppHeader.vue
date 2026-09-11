@@ -17,7 +17,7 @@ const links = [
     class="navbar sticky top-0 z-30 min-h-0 border-b border-white/10 bg-[#080a08]/10 px-[5vw] py-4 backdrop-blur-xl">
     <div class="navbar-start gap-6">
       <button tabindex="0" @click="router.push('/home')" class="btn btn-ghost ">
-        <img src="/logo.png" alt="ArenaTV" class="w-12" />
+        <img src="/logo.svg" alt="ArenaTV" class="w-12" />
         <span class="ml-2">ArenaTV</span>
       </button>
       <nav class="hidden gap-1 sm:flex" aria-label="Primary navigation">

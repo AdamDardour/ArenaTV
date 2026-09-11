@@ -4,6 +4,7 @@ export interface XtreamUserInfo {
   status: string
   exp_date?: string
   max_connections?: string
+  allowed_output_formats?: string[]
 }
 export interface XtreamServerInfo {
   url?: string

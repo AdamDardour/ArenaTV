@@ -1,5 +1,6 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
+import { Preferences } from '@capacitor/preferences'
 import type {
   ChannelCandidate,
   FootballMatch,
@@ -10,7 +11,15 @@ import type {
 } from '@/types'
 
 const SESSION_KEY = 'arenatv.session.v2'
-const CATALOG_KEY = 'arenatv.catalog.v2'
+const PASSWORD_KEY = 'arenatv.password.v2'
+function normalizeServerUrl(value: string) {
+  const input = value.trim()
+  const withScheme = /^https?:\/\//i.test(input) ? input : `http://${input}`
+  const url = new URL(withScheme)
+  const endpointPattern = /\/(?:player_api|xmltv|get)\.php$/i
+  const basePath = url.pathname.replace(endpointPattern, '').replace(/\/+$/, '')
+  return `${url.origin}${basePath}`
+}
 const normalize = (value: string) =>
   value
     .normalize('NFD')
@@ -26,6 +35,7 @@ export const useXtreamStore = defineStore('xtream', () => {
   const username = ref('')
   const password = ref('')
   const isAuthenticated = ref(false)
+  const isInitialized = ref(false)
   const isLoading = ref(false)
   const error = ref<string | null>(null)
   const userInfo = ref<XtreamUserInfo | null>(null)
@@ -44,29 +54,24 @@ export const useXtreamStore = defineStore('xtream', () => {
   // Browser localStorage is intentionally small (often around 5 MB). IPTV catalogues
   // can be much larger, so keep them in memory rather than letting an optional cache
   // turn a successful login into a failed one.
-  function persist() {
+  async function persist() {
     try {
       localStorage.setItem(
         SESSION_KEY,
         JSON.stringify({ serverUrl: serverUrl.value, username: username.value }),
       )
+      await Preferences.set({ key: PASSWORD_KEY, value: password.value })
     } catch {
       /* remembering the login is optional */
     }
   }
-  function cacheCatalog() {
-    try {
-      localStorage.removeItem(CATALOG_KEY)
-    } catch {
-      /* storage may be unavailable or full */
-    }
-  }
-  function loadStoredSession() {
+  async function loadStoredSession() {
     try {
       const session = JSON.parse(localStorage.getItem(SESSION_KEY) || '{}')
-      serverUrl.value = session.serverUrl || ''
+      serverUrl.value = session.serverUrl ? normalizeServerUrl(session.serverUrl) : ''
       username.value = session.username || ''
-      localStorage.removeItem(CATALOG_KEY)
+      const storedPassword = await Preferences.get({ key: PASSWORD_KEY })
+      password.value = storedPassword.value || ''
     } catch {
       /* stored session and legacy cache are optional */
     }
@@ -94,15 +99,40 @@ export const useXtreamStore = defineStore('xtream', () => {
     categories.value = Array.isArray(categoryData) ? categoryData : []
     liveStreams.value = Array.isArray(streamData) ? streamData : []
     if (!liveStreams.value.length) throw new Error('This account has no live channels.')
-    cacheCatalog()
+  }
+  async function reauthenticate() {
+    if (!serverUrl.value || !username.value || !password.value) {
+      isAuthenticated.value = false
+      return false
+    }
+    try {
+      const response = await request<{ user_info?: XtreamUserInfo; server_info?: XtreamServerInfo }>()
+      if (
+        response.user_info?.auth !== 1 ||
+        /expired|disabled/i.test(response.user_info.status || '')
+      )
+        throw new Error('The account could not be authorized.')
+      userInfo.value = response.user_info
+      serverInfo.value = response.server_info || null
+      isAuthenticated.value = true
+      return true
+    } catch {
+      isAuthenticated.value = false
+      return false
+    }
+  }
+  async function initializeSession() {
+    await loadStoredSession()
+    if (serverUrl.value && username.value && password.value) await reauthenticate()
+    isInitialized.value = true
   }
   async function login(url: string, user: string, pass: string) {
     isLoading.value = true
     error.value = null
-    serverUrl.value = url.trim()
     username.value = user.trim()
     password.value = pass.trim()
     try {
+      serverUrl.value = normalizeServerUrl(url)
       const response = await request<{
         user_info?: XtreamUserInfo
         server_info?: XtreamServerInfo
@@ -116,7 +146,7 @@ export const useXtreamStore = defineStore('xtream', () => {
       serverInfo.value = response.server_info || null
       isAuthenticated.value = true
       await refreshLibrary()
-      persist()
+      await persist()
       return true
     } catch (cause) {
       isAuthenticated.value = false
@@ -128,21 +158,19 @@ export const useXtreamStore = defineStore('xtream', () => {
   }
   function getStreamPlaybackUrl(stream: XtreamLiveStream) {
     if (stream.direct_source) return stream.direct_source
-    // Xtream panels match the username/password segments in a /live/ URL
-    // literally against the account record — unlike player_api.php, which
-    // reads them from a query string. encodeURIComponent()-ing them here
-    // turns any "+  @ ! $ &" etc. in the credentials into %XX sequences the
-    // panel no longer recognizes, so login succeeds but every stream request
-    // comes back "Unauthorized". Only escape the one character ("/") that
-    // would otherwise be mistaken for an extra path segment.
-    const pathSafe = (value: string) => value.replace(/\//g, '%2F')
-    const allowedFormats = (userInfo.value as { allowed_output_formats?: string[] } | null)
-      ?.allowed_output_formats
-    const extension = allowedFormats?.length
-      ? allowedFormats.includes('m3u8')
+    // Credentials are query parameters during login but path segments during playback.
+    // Encode each segment so characters such as #, ?, &, and / cannot alter the stream URL.
+    const pathSafe = (value: string) => encodeURIComponent(value)
+    const streamType = stream.stream_type.toLowerCase()
+    const allowedFormats = (userInfo.value?.allowed_output_formats || []).map((format) =>
+      format.toLowerCase(),
+    )
+    const extension =
+      streamType.includes('m3u8') || streamType.includes('hls')
         ? 'm3u8'
-        : allowedFormats[0]
-      : 'm3u8'
+        : allowedFormats.includes('m3u8') && !allowedFormats.includes('ts')
+          ? 'm3u8'
+          : 'ts'
     return `${cleanServerUrl.value}/live/${pathSafe(username.value)}/${pathSafe(password.value)}/${stream.stream_id}.${extension}`
   }
   function candidatesFor(match: FootballMatch): ChannelCandidate[] {
@@ -183,15 +211,15 @@ export const useXtreamStore = defineStore('xtream', () => {
     liveStreams.value = []
     categories.value = []
     localStorage.removeItem(SESSION_KEY)
-    localStorage.removeItem(CATALOG_KEY)
+    void Preferences.remove({ key: PASSWORD_KEY })
   }
-  loadStoredSession()
   return {
     serverUrl,
     username,
     password,
     cleanServerUrl,
     isAuthenticated,
+    isInitialized,
     isLoading,
     error,
     userInfo,
@@ -200,6 +228,8 @@ export const useXtreamStore = defineStore('xtream', () => {
     categories,
     sportsCategories,
     login,
+    initializeSession,
+    reauthenticate,
     refreshLibrary,
     getStreamPlaybackUrl,
     candidatesFor,
