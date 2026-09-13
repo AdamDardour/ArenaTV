@@ -1,4 +1,74 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,100..1000&display=swap');
 @import 'tailwindcss';
+
+/* Tailwind v4 + daisyUI 5. Custom reusable classes must be registered with
+   @utility (not @layer components) to be @apply-able from other custom
+   classes — @layer components classes are plain CSS as far as @apply is
+   concerned in v4, which is what caused the "unknown utility class" error.
+   Named `glassmorphism*` rather than `glass*` since daisyUI ships its own
+   built-in `.glass` utility that this would otherwise collide with. */
+
+@utility glassmorphism {
+  position: relative;
+  overflow: hidden;
+  border-width: 1px;
+  border-style: solid;
+  border-color: rgb(255 255 255 / 0.1);
+  background-color: rgb(255 255 255 / 0.04);
+  backdrop-filter: blur(24px);
+  /* equivalent to backdrop-blur-xl */
+
+  /* Hairline top sheen — previously a separate <span> in every component,
+     now bundled into the class itself via a pseudo-element. */
+  &::before {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    z-index: 10;
+    height: 1px;
+    pointer-events: none;
+    background-image: linear-gradient(to right, transparent, rgb(255 255 255 / 0.25), transparent);
+  }
+}
+
+/* Interactive variant: buttons, clickable cards. Composing glassmorphism
+   here works because @utility registers it as a real, @apply-able utility. */
+@utility glassmorphism-interactive {
+  @apply glassmorphism cursor-pointer transition-all duration-300 ease-out;
+
+  &:hover,
+  &:focus-visible {
+    transform: translateY(-0.125rem);
+    background-color: rgb(255 255 255 / 0.08);
+    border-color: color-mix(in srgb, var(--color-primary) 40%, transparent);
+    box-shadow: 0 10px 34px -10px color-mix(in srgb, var(--color-primary) 30%, transparent);
+  }
+
+  &:focus-visible {
+    outline: none;
+  }
+}
+
+/* Same interactive treatment tinted for live/error contexts (e.g. a live
+   match card's hover glow) instead of the default primary color. */
+@utility glassmorphism-interactive-live {
+  @apply glassmorphism-interactive;
+
+  &:hover,
+  &:focus-visible {
+    border-color: color-mix(in srgb, var(--color-error) 50%, transparent);
+    box-shadow: 0 10px 34px -10px color-mix(in srgb, var(--color-error) 35%, transparent);
+  }
+}
+
+/* Selected/active state for list items — e.g. the channel currently playing
+   — without the hover lift, since it should look "on" at rest, not hovered. */
+@utility glassmorphism-active {
+  border-color: color-mix(in srgb, var(--color-primary) 50%, transparent);
+  background-color: rgb(255 255 255 / 0.09);
+}
+
 @plugin "daisyui";
 
 @plugin "daisyui/theme" {
@@ -34,6 +104,15 @@
   --border: 1px;
   --depth: 1;
   --noise: 0;
+}
+
+
+
+.font-dm-sans {
+  font-family: "DM Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
 }
 
 /* ── Glass morphism ──────────────────────────────────────────── */

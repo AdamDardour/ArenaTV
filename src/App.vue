@@ -1,13 +1,17 @@
 <template>
+  <div class="blur-blob fixed bottom-5 right-2/3 bg-primary opacity-50 w-lg h-128 " />
+  <div class="blur-blob fixed bottom-10 right-1/2 bg-accent opacity-50 w-lg h-128 " />
+  <div class="blur-blob fixed bottom-40 right-1/3 bg-secondary opacity-50 w-lg h-128 " />
   <div class="drawer lg:drawer-open overflow-hidden">
     <input id="my-drawer-4" type="checkbox" class="drawer-toggle inline" />
     <div class="drawer-content h-dvh overflow-hidden">
+
       <div class="p-4 ">
         <div class=" " v-if="isInitialized">
           <RouterView />
         </div>
 
-        <div v-else class="h-dvh overflow-hidden bg-[#080a08] text-sm text-white/50">
+        <div v-else class="h-dvh overflow-hidden bg-base-200 text-sm text-white/50">
           CONNECTING…
         </div>
       </div>
@@ -15,9 +19,9 @@
 
     <div class="drawer-side is-drawer-close:overflow-visible">
       <label for="my-drawer-4" aria-label="close sidebar" class="drawer-overlay"></label>
-      <div class="flex min-h-full flex-col items-start bg-base-200 is-drawer-close:w-22 is-drawer-open:w-64">
+      <div class="flex min-h-full flex-col items-start bg-base-200/10 backdrop-blur-lg is-drawer-close:w-22 is-drawer-open:w-64">
         <!-- Sidebar content here -->
-        <ul class="menu w-full grow space-y-4 ">
+        <ul class="menu w-full grow space-y-4 menu-sm">
           <!-- List item -->
           <!-- <li>
             <label for="my-drawer-4" aria-label="open sidebar" class="btn btn-square btn-ghost drawer-button">
@@ -31,24 +35,25 @@
             </label>
           </li> -->
           <li class="my-8 mb-24 ">
+
             <label tabindex="0" for="my-drawer-4" aria-label="open sidebar">
-              <svg class="size-12 is-drawer-close:size-12  " viewBox="0 0 705 705" fill="none"
+              <svg class="size-12 is-drawer-close:size-12" viewBox="0 0 735 735" fill="none"
                 xmlns="http://www.w3.org/2000/svg">
                 <g filter="url(#filter0_i_11_25)">
                   <path
-                    d="M24.5625 417.562C24.5625 294.062 24.5625 232.296 62.9455 193.945C101.328 155.595 163.062 155.562 286.562 155.562H417.562C541.063 155.562 602.829 155.562 641.179 193.945C679.53 232.328 679.562 294.062 679.562 417.562C679.562 541.063 679.562 602.829 641.179 641.179C602.796 679.53 541.063 679.562 417.562 679.562H286.562C163.062 679.562 101.296 679.562 62.9455 641.179C24.5952 602.796 24.5625 541.063 24.5625 417.562Z"
-                    stroke="url(#paint0_linear_11_25)" stroke-width="49.125" stroke-linecap="round" />
-                  <path d="M253.812 57.3125L352.062 155.562L483.062 24.5625" stroke="url(#paint1_linear_11_25)"
-                    stroke-width="49.125" stroke-linecap="round" stroke-linejoin="round" />
+                    d="M40 433C40 309.5 40 247.733 78.383 209.383C116.766 171.033 178.5 171 302 171H433C556.5 171 618.267 171 656.617 209.383C694.967 247.766 695 309.5 695 433C695 556.5 695 618.267 656.617 656.617C618.234 694.967 556.5 695 433 695H302C178.5 695 116.733 695 78.383 656.617C40.0327 618.234 40 556.5 40 433Z"
+                    stroke="white" stroke-width="80" stroke-linecap="round" />
+                  <path d="M269.25 72.75L367.5 171L498.5 40" stroke="white" stroke-width="80" stroke-linecap="round"
+                    stroke-linejoin="round" />
                   <g filter="url(#filter1_i_11_25)">
-                    <rect x="202.562" y="285.562" width="46" height="116" rx="23" fill="white" />
+                    <rect x="218" y="301" width="55" height="116" rx="27.5" fill="white" />
                   </g>
                   <g filter="url(#filter2_i_11_25)">
-                    <rect x="454.562" y="285.562" width="46" height="116" rx="23" fill="white" />
+                    <rect x="470" y="301" width="55" height="116" rx="27.5" fill="white" />
                   </g>
                 </g>
                 <defs>
-                  <filter id="filter0_i_11_25" x="0" y="0" width="704.125" height="708.125" filterUnits="userSpaceOnUse"
+                  <filter id="filter0_i_11_25" x="0" y="0" width="735" height="739" filterUnits="userSpaceOnUse"
                     color-interpolation-filters="sRGB">
                     <feFlood flood-opacity="0" result="BackgroundImageFix" />
                     <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
@@ -60,8 +65,8 @@
                     <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
                     <feBlend mode="normal" in2="shape" result="effect1_innerShadow_11_25" />
                   </filter>
-                  <filter id="filter1_i_11_25" x="202.562" y="285.562" width="46" height="120"
-                    filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                  <filter id="filter1_i_11_25" x="218" y="301" width="55" height="120" filterUnits="userSpaceOnUse"
+                    color-interpolation-filters="sRGB">
                     <feFlood flood-opacity="0" result="BackgroundImageFix" />
                     <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
                     <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
@@ -72,8 +77,8 @@
                     <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
                     <feBlend mode="normal" in2="shape" result="effect1_innerShadow_11_25" />
                   </filter>
-                  <filter id="filter2_i_11_25" x="454.562" y="285.562" width="46" height="120"
-                    filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                  <filter id="filter2_i_11_25" x="470" y="301" width="55" height="120" filterUnits="userSpaceOnUse"
+                    color-interpolation-filters="sRGB">
                     <feFlood flood-opacity="0" result="BackgroundImageFix" />
                     <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
                     <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
@@ -84,32 +89,20 @@
                     <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
                     <feBlend mode="normal" in2="shape" result="effect1_innerShadow_11_25" />
                   </filter>
-                  <linearGradient id="paint0_linear_11_25" x1="352.062" y1="155.562" x2="352.062" y2="679.562"
-                    gradientUnits="userSpaceOnUse">
-                    <stop stop-color="#00FFA6" />
-                    <stop offset="0.451923" stop-color="#00C9F3" />
-                    <stop offset="1" stop-color="#5C0099" />
-                  </linearGradient>
-                  <linearGradient id="paint1_linear_11_25" x1="368.437" y1="24.5625" x2="368.437" y2="155.562"
-                    gradientUnits="userSpaceOnUse">
-                    <stop stop-color="#00C9F3" />
-                    <stop offset="1" stop-color="#00FFA6" />
-                  </linearGradient>
                 </defs>
               </svg>
-
-
-
 
 
               <span class="is-drawer-close:hidden">Arena TV</span>
             </label>
           </li>
           <li>
-            <button class="is-drawer-close:tooltip is-drawer-close:tooltip-right hover:text-primary "
+            <button
+              class=" p-0 is-drawer-close:tooltip is-drawer-close:tooltip-right  hover:bg-linear-to-b from-primary via-accent to-secondary w-16 h-16 rounded-3xl flex items-center justify-center"
+              :class="route.name == 'home' ? 'bg-linear-to-b from-primary via-accent to-secondary text-white ' : 'text-base-content'"
               data-tip="Homepage" @click="router.push('/home')">
               <!-- Home icon -->
-              <HugeiconsIcon :icon="Home04Icon" :size="42" color="currentColor" />
+              <HugeiconsIcon :icon="Home04Icon" :size="36" color="currentColor" />
               <span class="is-drawer-close:hidden">Homepage</span>
             </button>
           </li>
@@ -198,3 +191,20 @@ onBeforeUnmount(() => {
   void appStateListener?.remove()
 })
 </script>
+<style scoped>
+.bgImage {
+  background-image: url('/bg1.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+
+  background-position: center;
+}
+
+.blur-blob {
+  filter: blur(60px);
+  transition-duration: 2s;
+  transition-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
+  border-radius: 9999px;
+  z-index: -10;
+}
+</style>

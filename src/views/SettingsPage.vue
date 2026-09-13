@@ -26,12 +26,10 @@ function handleLogout() {
 </script>
 
 <template>
-  <main class="tv-safe min-h-screen bg-[#080a08] py-10 text-white">
-    <div class="mx-auto max-w-5xl space-y-6">
-
-
-      <section class="glass grid gap-4 rounded-[1.5rem] border border-white/10 p-5 md:grid-cols-2">
-        <div class="rounded-2xl border border-white/10 bg-white/3 p-4">
+  <main class="h-dvh  py-8 text-white">
+    <div class=" space-y-6">
+      <section class=" grid gap-4  md:grid-cols-2">
+        <div class="glassmorphism rounded-3xl p-4">
           <p class="text-xs font-black uppercase tracking-[0.18em] text-white/40">Profiles</p>
           <h2 class="mt-3 text-2xl font-black">{{ activeProfile ? activeProfile.name : 'No profile selected' }}</h2>
           <p class="mt-2 text-sm text-white/60">{{ activeProfile
@@ -41,8 +39,8 @@ function handleLogout() {
             profiles</button>
         </div>
 
-        <div class="rounded-2xl border border-white/10 bg-white/3 p-4">
-          <p class="text-xs font-black uppercase tracking-[0.18em] text-white/40">IPTV Library</p>
+        <div class="glassmorphism rounded-3xl p-4">
+
           <h2 class="mt-3 text-2xl font-black">Refresh channels</h2>
           <p class="mt-2 text-sm text-white/60">{{ refreshMessage || 'Sync the live catalogue with your provider.' }}
           </p>
@@ -52,16 +50,13 @@ function handleLogout() {
         </div>
       </section>
 
-      <section class="glass rounded-[1.5rem] border border-white/10 p-5">
-        <p class="text-xs font-black uppercase tracking-[0.18em] text-white/40">Account</p>
-        <div class="mt-4 flex flex-wrap gap-3">
-          <button tabindex="0" @click="router.push('/home')" class="btn btn-ghost">Back home</button>
-          <button tabindex="0" @click="handleLogout" class="btn btn-error">Logout</button>
-        </div>
-      </section>
 
-      <section class="glass rounded-[1.5rem] border border-white/10 p-5">
-        <p class="text-xs font-black uppercase tracking-[0.18em] text-white/40">About</p>
+      <section class="glassmorphism rounded-3xl   p-5">
+
+
+        <button tabindex="0" @click="handleLogout" class="btn btn-error btn-lg rounded-2xl">Logout</button>
+
+
         <div class="mt-3 text-sm text-white/70">
           <p>ArenaTV Android TV</p>
           <p class="mt-1">Version 1.0.0</p>

@@ -25,6 +25,8 @@
     "@capgo/capacitor-video-player": "^8.2.8",
     "@hugeicons/core-free-icons": "^4.3.2",
     "@hugeicons/vue": "^1.0.8",
+    "embla-carousel-autoplay": "^8.6.0",
+    "embla-carousel-vue": "^8.6.0",
     "pinia": "^4.0.3",
     "vue": "^3.5.40",
     "vue-router": "^5.2.0"

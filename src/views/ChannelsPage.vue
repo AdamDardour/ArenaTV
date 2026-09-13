@@ -1,74 +1,110 @@
 <template>
-  <main class="h-full grid grid-cols-8 ">
-    <!--  Channel categories -->
-    <div class="col-span-2 flex flex-col gap-2  h-dvh overflow-y-auto py-8 pb-16" aria-label="Channel categories">
+  <main class="relative h-full grid grid-cols-8 font-dm-sans ">
+    <div class="screen-grain pointer-events-none fixed inset-0" />
+    <div class="lime-grid pointer-events-none fixed inset-0 opacity-[.14]" />
+
+    <!-- Channel categories -->
+    <div class="relative col-span-2 flex flex-col gap-2 h-dvh overflow-y-auto px-3 py-8 pb-16"
+      aria-label="Channel categories">
       <button tabindex="0" @click="selectedCategory = null"
-        class="cursor-pointer rounded-2xl border border-white/10  px-4 py-3 shadow-[0_1px_0_0_rgba(255,255,255,.04)_inset] backdrop-blur-xl transition duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-white/8 hover:shadow-[0_8px_30px_-8px_rgba(201,255,74,.25)]"
-        :class="selectedCategory === null ? 'bg-primary font-bold' : 'bg-white/4 text-white/55'">
-        ALL <span class="badge badge-sm badge-primary mx-4">{{ liveStreams.length }}</span>
+        class="cursor-pointer rounded-xl border px-4 py-3 text-left text-sm backdrop-blur-xl transition-all duration-300 ease-out focus:outline-none focus-visible:-translate-y-0.5 focus-visible:shadow-[0_10px_34px_-10px_rgba(201,255,74,.3)]"
+        :class="selectedCategory === null
+          ? 'border-primary/40 bg-primary/90 font-black text-primary-content shadow-[0_10px_30px_-10px_rgba(201,255,74,.45)]'
+          : 'border-white/10 bg-white/4 text-white/55 hover:border-white/20 hover:bg-white/[.07] hover:text-white focus-visible:border-primary/50 focus-visible:bg-white/9'">
+        ALL
+        <span class="badge badge-sm border-0 ml-2"
+          :class="selectedCategory === null ? 'bg-black/15 text-primary-content' : 'bg-black/25 text-white/45'">
+          {{ liveStreams.length }}
+        </span>
       </button>
+
       <button v-for="category in availableCategories" :key="category.id" tabindex="0"
         @click="selectedCategory = selectedCategory === category.id ? null : category.id"
-        class="cursor-pointer rounded-2xl border border-white/10 hover:text-base-content  px-4 py-3 shadow-[0_1px_0_0_rgba(255,255,255,.04)_inset] backdrop-blur-xl transition duration-200 hover:-translate-y-0.5 hover:border-primary hover:bg-white/8 hover:shadow-[0_8px_30px_-8px_rgba(201,255,74,.25)]"
-        :class="selectedCategory === category.id ? 'bg-primary font-bold text-primary-content' : 'bg-white/4 text-base-content'">
+        class="group relative cursor-pointer rounded-xl border px-4 py-3 text-left text-sm backdrop-blur-xl transition-all duration-300 ease-out focus:outline-none focus-visible:-translate-y-0.5 focus-visible:shadow-[0_10px_34px_-10px_rgba(201,255,74,.3)]"
+        :class="selectedCategory === category.id
+          ? 'border-primary/40 bg-primary/90 font-black text-primary-content shadow-[0_10px_30px_-10px_rgba(201,255,74,.45)]'
+          : 'border-white/10 bg-white/4 text-white/55 hover:border-white/20 hover:bg-white/[.07] hover:text-white focus-visible:border-primary/50 focus-visible:bg-white/9'">
+        <span
+          class="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-white/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
         {{ category.name }}
       </button>
     </div>
-    <!--  Channel list -->
-    <div v-if="channelGroups.length" class="col-span-2 h-dvh overflow-y-auto py-8 pb-16">
-      <section v-for="(group, groupIndex) in visibleGroups" :key="group.id" :aria-labelledby="`category-${group.id}`">
-        <div class="mb-4 flex items-center gap-3">
-          <span class="h-px w-8 bg-primary" />
-          <h2 :id="`category-${group.id}`" class="text-lg font-black tracking-[-.02em]">
-            {{ group.name }}
-          </h2>
-          <span class="rounded-full border border-white/10 px-2 py-0.5 text-[11px] font-bold text-white/40">{{
-            group.streams.length }}</span>
-        </div>
-        <div class="flex flex-col gap-2  ">
-          <!-- Channel card: glassmorphism -->
-          <article v-for="stream in group.streams" :key="String(stream.stream_id)" @click="play(stream)"
-            class="cursor-pointer group relative flex min-w-0 items-center justify-between gap-4  rounded-2xl border border-white/10 bg-white/4 px-4 py-1 shadow-[0_1px_0_0_rgba(255,255,255,.04)_inset] backdrop-blur-xl transition duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-white/8 hover:shadow-[0_8px_30px_-8px_rgba(201,255,74,.25)]">
-            <!-- subtle top sheen for the glass effect -->
-            <span
-              class="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-white/25 to-transparent" />
-            <div class="relative flex min-w-0 items-center gap-3">
-              <div
-                class="flex size-16 shrink-0 items-center justify-center rounded-xl p-0 text-xs font-black text-primary">
-                <img v-if="stream.stream_icon" :src="stream.stream_icon" :alt="''" loading="lazy" decoding="async"
-                  referrerpolicy="no-referrer" class="size-full object-contain "
-                  @error="($event.target as HTMLImageElement).style.display = 'none'" />
-                <HugeiconsIcon v-else :icon="Tv01Icon" :size="18" />
-              </div>
-              <div class="min-w-0">
-                <h3 class="truncate text-sm font-bold text-white">{{ stream.name }}</h3>
-                <p class="mt-0.5 text-[11px] font-bold uppercase tracking-[.13em] text-white/35">
-                  Channel {{ stream.num ?? stream.stream_id }}
-                </p>
-              </div>
+
+    <!-- Channel list -->
+    <div class="relative col-span-2 h-dvh overflow-y-auto px-3 py-8 pb-16">
+      <div v-if="nativePlaybackError" role="alert"
+        class="alert alert-error mb-5 border border-error/30 bg-error/10 text-sm backdrop-blur-md">
+        <HugeiconsIcon :icon="Alert01Icon" :size="18" />
+        <span>{{ nativePlaybackError }}</span>
+        <button tabindex="0" @click="nativePlaybackError = ''" class="btn btn-ghost btn-xs">DISMISS</button>
+      </div>
+
+      <template v-if="channelGroups.length">
+        <p class="mb-4 text-[11px] font-bold uppercase tracking-[.16em] text-white/35">
+          {{ visibleChannelCount }} channels
+        </p>
+        <TransitionGroup name="rise" tag="div" class="space-y-8">
+          <section v-for="group in visibleGroups" :key="group.id" :aria-labelledby="`category-${group.id}`">
+            <div class="mb-4 flex items-center gap-3">
+              <span class="h-px w-8 bg-primary" />
+              <h2 :id="`category-${group.id}`" class="text-lg font-black tracking-[-.02em]">{{ group.name }}</h2>
+              <span class="rounded-full border border-white/10 px-2 py-0.5 text-[11px] font-bold text-white/40">{{
+                group.streams.length }}</span>
             </div>
+            <div class="flex flex-col gap-2">
+              <article v-for="stream in group.streams" :key="String(stream.stream_id)" tabindex="0"
+                @click="play(stream)" @keydown.enter="play(stream)"
+                class="group relative flex min-w-0 cursor-pointer items-center justify-between gap-4 overflow-hidden rounded-xl border border-white/10 bg-white/4 px-4 py-2.5 backdrop-blur-xl transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-primary/40 hover:bg-white/8 hover:shadow-[0_8px_26px_-10px_rgba(201,255,74,.3)] focus:outline-none focus-visible:-translate-y-0.5 focus-visible:border-primary/50 focus-visible:bg-white/9 focus-visible:shadow-[0_10px_34px_-10px_rgba(201,255,74,.35)]"
+                :class="selectedChannel?.stream_id === stream.stream_id ? 'border-primary/50 bg-white/9' : ''">
+                <span
+                  class="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-white/20 to-transparent" />
+                <div class="relative flex min-w-0 items-center gap-3">
+                  <div
+                    class="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white/6 text-primary">
+                    <img v-if="stream.stream_icon" :src="stream.stream_icon" :alt="''" loading="lazy" decoding="async"
+                      referrerpolicy="no-referrer" class="size-full object-contain"
+                      @error="($event.target as HTMLImageElement).style.display = 'none'" />
+                    <HugeiconsIcon v-else :icon="Tv01Icon" :size="18" />
+                  </div>
+                  <div class="min-w-0">
+                    <h3 class="truncate text-sm font-bold text-white">{{ stream.name }}</h3>
+                    <p class="mt-0.5 text-[11px] font-bold uppercase tracking-[.13em] text-white/35">
+                      Channel {{ stream.num ?? stream.stream_id }}
+                    </p>
+                  </div>
+                </div>
+                <HugeiconsIcon :icon="PlayIcon" :size="18"
+                  class="relative shrink-0 text-white/0 transition-colors duration-300 group-hover:text-primary group-focus-visible:text-primary" />
+              </article>
+            </div>
+          </section>
+        </TransitionGroup>
 
-          </article>
+        <div v-if="visibleGroups.length < channelGroups.length" ref="sentinel" class="flex justify-center py-6">
+          <span class="loading loading-dots loading-md text-primary" aria-hidden="true" />
+          <span class="sr-only">Loading more channels…</span>
         </div>
-      </section>
+      </template>
 
-      <!-- Lazy-load sentinel: reveals the next batch of categories as it scrolls into view -->
-      <div v-if="visibleGroups.length < channelGroups.length" ref="sentinel" class="flex justify-center py-6">
-        <span class="loading loading-dots loading-md text-primary" aria-hidden="true" />
-        <span class="sr-only">Loading more channels…</span>
+      <div v-else class="mt-10 rounded-2xl border border-dashed border-white/15 px-6 py-14 text-center">
+        <p class="text-base font-bold text-white/60">No channels match that search.</p>
+        <button tabindex="0" @click="clearFilters" class="btn btn-primary btn-sm mt-4">CLEAR FILTERS</button>
       </div>
     </div>
 
-    <!--  Channel player -->
-
-    <div v-if="selectedChannel" class="col-span-4  " :aria-label="`Playing ${selectedChannel.name}`">
-      <section class="w-full ">
-
-        <div class="relative aspect-video bg-black">
-          <video :key="playbackUrl" autoplay controls playsinline class="size-full" @error="playerError = true">
+    <!-- Channel player -->
+    <Transition name="fade" mode="out-in">
+      <div v-if="selectedChannel" key="player" ref="playerShell" tabindex="0" @pointermove="wakeControls"
+        @keydown="wakeControls"
+        class="relative col-span-4 flex h-dvh flex-col overflow-hidden rounded-2xl border border-white/10 bg-black/40 backdrop-blur-xl focus:outline-none"
+        :aria-label="`Playing ${selectedChannel.name}`">
+        <div class="relative flex-1 bg-black">
+          <video ref="videoEl" :key="playbackUrl" autoplay playsinline class="size-full object-contain"
+            @error="playerError = true" @play="isPlaying = true" @pause="isPlaying = false">
             <source :src="playbackUrl" :type="playbackMimeType" />
             Your device does not support embedded video playback.
           </video>
+
           <div v-if="playerError" class="absolute inset-0 grid place-items-center bg-black/85 p-8 text-center">
             <div>
               <p class="font-bold">This stream could not start in the built-in player.</p>
@@ -77,47 +113,118 @@
               </p>
             </div>
           </div>
+
+          <!-- Netflix/YouTube-style chrome for the web/dev-preview inline player.
+               On a native build, play() hands off to the native VideoPlayer plugin
+               instead (see script) and this overlay is never mounted. -->
+          <Transition name="fade">
+            <div v-if="controlsVisible" class="absolute inset-0 flex flex-col justify-between">
+              <div
+                class="flex items-start justify-between gap-4 bg-linear-to-b from-black/75 via-black/20 to-transparent p-5">
+                <div class="flex min-w-0 items-center gap-3">
+                  <button tabindex="0" @click="closePlayer"
+                    class="flex size-9 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white backdrop-blur-md transition-colors duration-200 hover:bg-white/20 focus:outline-none focus-visible:border-primary/60"
+                    aria-label="Close player">
+                    <HugeiconsIcon :icon="Cancel01Icon" :size="16" />
+                  </button>
+                  <img v-if="selectedChannel.stream_icon" :src="selectedChannel.stream_icon" :alt="''" loading="lazy"
+                    decoding="async" referrerpolicy="no-referrer" class="h-9 w-9 shrink-0 rounded-md object-contain"
+                    @error="($event.target as HTMLImageElement).style.display = 'none'" />
+                  <h2 class="truncate text-base font-black text-white drop-shadow">{{ selectedChannel.name }}</h2>
+                </div>
+                <span
+                  class="flex shrink-0 items-center gap-1.5 rounded-full bg-error/85 px-3 py-1 text-[11px] font-black tracking-wider text-white backdrop-blur-md">
+                  <span class="size-1.5 rounded-full bg-white motion-safe:animate-pulse" />
+                  LIVE
+                </span>
+              </div>
+
+              <div class="flex items-center gap-4 bg-linear-to-t from-black/80 via-black/25 to-transparent p-5">
+                <button tabindex="0" @click="togglePlayback"
+                  class="flex size-11 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white backdrop-blur-md transition-colors duration-200 hover:bg-white/20 focus:outline-none focus-visible:border-primary/60"
+                  :aria-label="isPlaying ? 'Pause' : 'Play'">
+                  <HugeiconsIcon :icon="isPlaying ? PauseIcon : PlayIcon" :size="18" />
+                </button>
+                <button tabindex="0" @click="toggleMute"
+                  class="flex size-11 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white backdrop-blur-md transition-colors duration-200 hover:bg-white/20 focus:outline-none focus-visible:border-primary/60"
+                  :aria-label="isMuted ? 'Unmute' : 'Mute'">
+                  <HugeiconsIcon :icon="isMuted ? VolumeOffIcon : VolumeHighIcon" :size="18" />
+                </button>
+                <p class="ml-1 truncate text-xs font-bold uppercase tracking-[.14em] text-white/50">
+                  Channel {{ selectedChannel.num ?? selectedChannel.stream_id }}
+                </p>
+              </div>
+            </div>
+          </Transition>
         </div>
-        <div class="flex flex-col  gap-4 border-b border-white/10 px-6 py-4">
-          <p class="text-[11px] font-bold uppercase tracking-[.16em] text-primary">Now playing</p>
-          <div class="min-w-0 flex items-center gap-2">
-
-            <img v-if="selectedChannel.stream_icon" :src="selectedChannel.stream_icon" :alt="''" loading="lazy"
-              decoding="async" referrerpolicy="no-referrer" class="h-16 w-16 rounded-lg object-contain"
-              @error="($event.target as HTMLImageElement).style.display = 'none'" />
-            <h2 class="truncate text-lg font-black">{{ selectedChannel.name }}</h2>
-          </div>
-
-        </div>
-      </section>
-    </div>
-    <div v-else class="col-span-4 grid place-items-center text-center text-white/50 bgImage mask-x-from-90% ">
-      <div>
-        <svg width="128" height="128" viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg"
-          class="mx-auto opacity-80">
-          <path
-            d="M8.575 21.6087C8.575 18.7641 8.575 17.3425 9.41884 16.4581C10.2627 15.5737 11.6192 15.575 14.335 15.575H31.615C34.3308 15.575 35.6873 15.575 36.5312 16.4594C37.375 17.3412 37.375 18.7628 37.375 21.6074V30.66C37.375 33.5046 37.375 34.9262 36.5312 35.8106C35.6873 36.695 34.3308 36.695 31.615 36.695H14.335C11.6192 36.695 10.2627 36.695 9.41884 35.8106C8.575 34.9289 8.575 33.5072 8.575 30.6626V21.6087Z"
-            stroke="#ffffff" stroke-width="2.94698" stroke-linejoin="round" />
-          <path
-            d="M22.975 28.7751C24.5656 28.7751 25.855 27.5931 25.855 26.1351C25.855 24.677 24.5656 23.4951 22.975 23.4951C21.3844 23.4951 20.095 24.677 20.095 26.1351C20.095 27.5931 21.3844 28.7751 22.975 28.7751Z"
-            stroke="#ffffff" stroke-width="2.94698" stroke-linejoin="round" />
-          <path
-            d="M22.975 23.4951V16.8951M22.975 28.7751V35.3751M37.375 22.1751H33.775C33.3931 22.1751 33.0268 22.3141 32.7568 22.5617C32.4867 22.8092 32.335 23.145 32.335 23.4951V28.7751C32.335 29.1251 32.4867 29.4609 32.7568 29.7084C33.0268 29.956 33.3931 30.0951 33.775 30.0951H37.375M8.575 22.1751H12.175C12.5569 22.1751 12.9232 22.3141 13.1932 22.5617C13.4633 22.8092 13.615 23.145 13.615 23.4951V28.7751C13.615 29.1251 13.4633 29.4609 13.1932 29.7084C12.9232 29.956 12.5569 30.0951 12.175 30.0951H8.575"
-            stroke="#ffffff" stroke-width="2.94698" stroke-linecap="round" stroke-linejoin="round" />
-          <path
-            d="M1.575 26.775C1.575 18.8559 1.575 14.8953 4.0362 12.4362C6.4974 9.97711 10.4559 9.97501 18.375 9.97501H26.775C34.6941 9.97501 38.6547 9.97501 41.1138 12.4362C43.5729 14.8974 43.575 18.8559 43.575 26.775C43.575 34.6941 43.575 38.6547 41.1138 41.1138C38.6526 43.5729 34.6941 43.575 26.775 43.575H18.375C10.4559 43.575 6.4953 43.575 4.0362 41.1138C1.5771 38.6526 1.575 34.6941 1.575 26.775Z"
-            stroke="#ffffff" stroke-width="3.15" stroke-linecap="round" />
-          <path d="M16.275 3.67501L22.575 9.97501L30.975 1.57501" stroke="#ffffff" stroke-width="3.15"
-            stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-
-        <p class="mt-4 text-sm">Select a channel to start watching</p>
       </div>
-    </div>
+
+      <div v-else key="empty"
+        class="col-span-4 grid place-items-center rounded-2xl border border-white/10 bg-white/2 text-center text-white/50 backdrop-blur-xl">
+        <div>
+          <svg width="220" height="220" viewBox="0 0 735 735" fill="none" xmlns="http://www.w3.org/2000/svg"
+            class="mx-auto opacity-70">
+            <g filter="url(#filter0_i_11_25)">
+              <path
+                d="M40 433C40 309.5 40 247.733 78.383 209.383C116.766 171.033 178.5 171 302 171H433C556.5 171 618.267 171 656.617 209.383C694.967 247.766 695 309.5 695 433C695 556.5 695 618.267 656.617 656.617C618.234 694.967 556.5 695 433 695H302C178.5 695 116.733 695 78.383 656.617C40.0327 618.234 40 556.5 40 433Z"
+                stroke="white" stroke-width="80" stroke-linecap="round" />
+              <path d="M269.25 72.75L367.5 171L498.5 40" stroke="white" stroke-width="80" stroke-linecap="round"
+                stroke-linejoin="round" />
+              <g filter="url(#filter1_i_11_25)">
+                <rect x="218" y="301" width="55" height="116" rx="27.5" fill="white" />
+              </g>
+              <g filter="url(#filter2_i_11_25)">
+                <rect x="470" y="301" width="55" height="116" rx="27.5" fill="white" />
+              </g>
+            </g>
+            <defs>
+              <filter id="filter0_i_11_25" x="0" y="0" width="735" height="739" filterUnits="userSpaceOnUse"
+                color-interpolation-filters="sRGB">
+                <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                  result="hardAlpha" />
+                <feOffset dy="4" />
+                <feGaussianBlur stdDeviation="2" />
+                <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
+                <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
+                <feBlend mode="normal" in2="shape" result="effect1_innerShadow_11_25" />
+              </filter>
+              <filter id="filter1_i_11_25" x="218" y="301" width="55" height="120" filterUnits="userSpaceOnUse"
+                color-interpolation-filters="sRGB">
+                <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                  result="hardAlpha" />
+                <feOffset dy="4" />
+                <feGaussianBlur stdDeviation="2" />
+                <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
+                <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
+                <feBlend mode="normal" in2="shape" result="effect1_innerShadow_11_25" />
+              </filter>
+              <filter id="filter2_i_11_25" x="470" y="301" width="55" height="120" filterUnits="userSpaceOnUse"
+                color-interpolation-filters="sRGB">
+                <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                  result="hardAlpha" />
+                <feOffset dy="4" />
+                <feGaussianBlur stdDeviation="2" />
+                <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
+                <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
+                <feBlend mode="normal" in2="shape" result="effect1_innerShadow_11_25" />
+              </filter>
+            </defs>
+          </svg>
+          <p class="mt-4 text-sm font-bold uppercase tracking-[.16em] text-white/30">Select a channel to start watching
+          </p>
+        </div>
+      </div>
+    </Transition>
   </main>
 </template>
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onUnmounted, ref, watch } from 'vue'
 import { Capacitor } from '@capacitor/core'
 import { useRouter } from 'vue-router'
 import { useXtream } from '@/composables/useXtream'
@@ -126,11 +233,14 @@ import { HugeiconsIcon } from '@hugeicons/vue'
 import type { XtreamLiveStream } from '@/types'
 import {
   PlayIcon,
-  Search01Icon,
+  PauseIcon,
   Cancel01Icon,
   Tv01Icon,
   Alert01Icon,
+  VolumeHighIcon,
+  VolumeOffIcon,
 } from '@hugeicons/core-free-icons'
+
 interface ChannelGroup {
   id: string
   name: string
@@ -139,6 +249,9 @@ interface ChannelGroup {
 
 const router = useRouter()
 const { isAuthenticated, liveStreams, categories, getStreamPlaybackUrl } = useXtream()
+// Populated by the navbar's search input. If the navbar isn't already
+// writing into this exact ref (shared store / provide-inject / route query),
+// wire that up separately — this page only reads it.
 const query = ref('')
 const selectedCategory = ref<string | null>(null)
 const selectedChannel = ref<XtreamLiveStream | null>(null)
@@ -149,7 +262,7 @@ if (!isAuthenticated.value) router.replace('/login')
 useSpatialNav({
   defaultFocusSelector: '#channel-search',
   onBack: () => {
-    if (selectedChannel.value) selectedChannel.value = null
+    if (selectedChannel.value) closePlayer()
     else router.push('/home')
   },
 })
@@ -200,12 +313,8 @@ const visibleChannelCount = computed(() =>
   channelGroups.value.reduce((total, group) => total + group.streams.length, 0),
 )
 
-// --- Lazy loading of category sections -----------------------------------
-// Large Xtream playlists can carry thousands of channels across hundreds of
-// categories. Rendering them all at once is what causes Android TV WebViews
-// to jank on open. Instead we render a small batch of categories up front
-// and grow that batch as the user scrolls, using an IntersectionObserver on
-// a sentinel element placed after the rendered groups.
+// --- Lazy loading of category sections (batches of 6, grown as a sentinel
+// scrolls into view) — unchanged from the previous version. ---
 const BATCH_SIZE = 6
 const visibleGroupCount = ref(BATCH_SIZE)
 const sentinel = ref<HTMLElement | null>(null)
@@ -213,8 +322,6 @@ let observer: IntersectionObserver | null = null
 
 const visibleGroups = computed(() => channelGroups.value.slice(0, visibleGroupCount.value))
 
-// Reset the batch whenever the filtered set changes (new search/category),
-// so we don't keep an oversized window from a previous, larger result set.
 watch([query, selectedCategory], () => {
   visibleGroupCount.value = BATCH_SIZE
 })
@@ -238,12 +345,57 @@ watch(sentinel, (el) => {
 
 onBeforeUnmount(() => observer?.disconnect())
 
+// --- Playback ---
 const playbackUrl = computed(() =>
   selectedChannel.value ? getStreamPlaybackUrl(selectedChannel.value) : '',
 )
 const playbackMimeType = computed(() =>
   playbackUrl.value.endsWith('.m3u8') ? 'application/x-mpegURL' : 'video/mp2t',
 )
+
+const videoEl = ref<HTMLVideoElement | null>(null)
+const isPlaying = ref(true)
+const isMuted = ref(false)
+function togglePlayback() {
+  const video = videoEl.value
+  if (!video) return
+  if (video.paused) video.play()
+  else video.pause()
+}
+function toggleMute() {
+  const video = videoEl.value
+  if (!video) return
+  video.muted = !video.muted
+  isMuted.value = video.muted
+}
+
+// Netflix/YouTube-style auto-hiding chrome for the inline web player only —
+// the native path below opens the OS-level player plugin instead, which has
+// its own controls this page never renders.
+const controlsVisible = ref(true)
+let hideTimer: number | undefined
+function wakeControls() {
+  controlsVisible.value = true
+  window.clearTimeout(hideTimer)
+  hideTimer = window.setTimeout(() => (controlsVisible.value = false), 4000)
+}
+watch(selectedChannel, async (channel) => {
+  playerError.value = false
+  isPlaying.value = true
+  if (channel) {
+    wakeControls()
+    await nextTick()
+    videoEl.value?.focus()
+  } else {
+    window.clearTimeout(hideTimer)
+  }
+})
+onUnmounted(() => window.clearTimeout(hideTimer))
+
+function closePlayer() {
+  selectedChannel.value = null
+}
+
 async function play(stream: XtreamLiveStream) {
   playerError.value = false
   nativePlaybackError.value = ''
@@ -281,11 +433,27 @@ function clearFilters() {
 }
 </script>
 <style scoped>
-.bgImage {
-  background-image: url('/bg1.jpg');
-  background-size: cover;
-  background-repeat: no-repeat;
+.rise-enter-active,
+.rise-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
 
-  background-position: center;
+.rise-enter-from {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.rise-leave-to {
+  opacity: 0;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.25s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
