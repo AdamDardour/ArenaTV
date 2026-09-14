@@ -1,4 +1,7 @@
 <template>
+  <SearchModal :open="showSearchModal" :model-value="query" @update:model-value="query = $event"
+    @close="showSearchModal = false" />
+
   <main class="relative h-full grid grid-cols-8 font-dm-sans ">
     <div class="screen-grain pointer-events-none fixed inset-0" />
     <div class="lime-grid pointer-events-none fixed inset-0 opacity-[.14]" />
@@ -6,6 +9,16 @@
     <!-- Channel categories -->
     <div class="relative col-span-2 flex flex-col gap-2 h-dvh overflow-y-auto px-3 py-8 pb-16"
       aria-label="Channel categories">
+      <div tabindex="0"
+        class="my-2 cursor-pointer rounded-xl  sticky top-0 z-50 text-left text-sm backdrop-blur-xl transition-all duration-300 ease-out focus:outline-none focus-visible:-translate-y-0.5 focus-visible:shadow-[0_10px_34px_-10px_rgba(201,255,74,.3)]">
+        <label class="input input-primary input-ghost w-full ">
+          <HugeiconsIcon :icon="Search01Icon" :size="24" class="text-white/65" />
+          <input id="channel-search" type="search" class="grow text-white placeholder:text-white/40"
+            placeholder="Search channels" v-model="query" />
+        </label>
+      </div>
+
+
       <button tabindex="0" @click="selectedCategory = null"
         class="cursor-pointer rounded-xl border px-4 py-3 text-left text-sm backdrop-blur-xl transition-all duration-300 ease-out focus:outline-none focus-visible:-translate-y-0.5 focus-visible:shadow-[0_10px_34px_-10px_rgba(201,255,74,.3)]"
         :class="selectedCategory === null
@@ -239,7 +252,10 @@ import {
   Alert01Icon,
   VolumeHighIcon,
   VolumeOffIcon,
+  Search01Icon,
 } from '@hugeicons/core-free-icons'
+import SearchModal from '@/components/SearchModal.vue'
+
 
 interface ChannelGroup {
   id: string
@@ -249,10 +265,9 @@ interface ChannelGroup {
 
 const router = useRouter()
 const { isAuthenticated, liveStreams, categories, getStreamPlaybackUrl } = useXtream()
-// Populated by the navbar's search input. If the navbar isn't already
-// writing into this exact ref (shared store / provide-inject / route query),
-// wire that up separately — this page only reads it.
+// Search query is shared with the SearchModal component.
 const query = ref('')
+const showSearchModal = ref(false)
 const selectedCategory = ref<string | null>(null)
 const selectedChannel = ref<XtreamLiveStream | null>(null)
 const playerError = ref(false)

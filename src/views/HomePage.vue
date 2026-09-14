@@ -13,9 +13,15 @@
     <div class="embla m-4">
       <div class="embla__viewport" ref="emblaRef">
         <div class="embla__container ">
-          <div class="embla__slide h-96" v-for="el in bigClubFixtures" :key="el.id">
 
-            <BigClubsFixturesCard :fixture="el" />
+          <div class="embla__slide h-96" v-if="bigClubFixtures.length">
+            <div v-for="el in bigClubFixtures" :key="el.id">
+              <BigClubsFixturesCard :fixture="el" />
+            </div>
+          </div>
+          <div v-else
+            class="embla__slide h-96 glassmorphism flex items-center justify-center rounded-3xl font-bold text-4xl">
+            No Big Event For Today
           </div>
         </div>
       </div>

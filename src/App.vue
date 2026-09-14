@@ -6,7 +6,7 @@
     <input id="my-drawer-4" type="checkbox" class="drawer-toggle inline" />
     <div class="drawer-content h-dvh overflow-hidden">
 
-      <div class="p-4 ">
+      <div class="p-6 ">
         <div class=" " v-if="isInitialized">
           <RouterView />
         </div>
@@ -17,11 +17,12 @@
       </div>
     </div>
 
-    <div class="drawer-side is-drawer-close:overflow-visible">
+    <div v-if="route.name != 'login'" class="drawer-side is-drawer-close:overflow-visible">
       <label for="my-drawer-4" aria-label="close sidebar" class="drawer-overlay"></label>
-      <div class="flex min-h-full flex-col items-start bg-base-200/10 backdrop-blur-lg is-drawer-close:w-22 is-drawer-open:w-64">
+      <div
+        class="flex h-dvh flex-col items-start justify-start  backdrop-blur-lg is-drawer-close:w-16 is-drawer-open:w-64 ">
         <!-- Sidebar content here -->
-        <ul class="menu w-full grow space-y-4 menu-sm">
+        <ul class=" w-full  space-y-4 p-2 ">
           <!-- List item -->
           <!-- <li>
             <label for="my-drawer-4" aria-label="open sidebar" class="btn btn-square btn-ghost drawer-button">
@@ -92,13 +93,11 @@
                 </defs>
               </svg>
 
-
-              <span class="is-drawer-close:hidden">Arena TV</span>
             </label>
           </li>
           <li>
             <button
-              class=" p-0 is-drawer-close:tooltip is-drawer-close:tooltip-right  hover:bg-linear-to-b from-primary via-accent to-secondary w-16 h-16 rounded-3xl flex items-center justify-center"
+              class=" p-2 is-drawer-close:tooltip is-drawer-close:tooltip-right  hover:bg-linear-to-b from-primary via-accent to-secondary  rounded-3xl flex items-center justify-center"
               :class="route.name == 'home' ? 'bg-linear-to-b from-primary via-accent to-secondary text-white ' : 'text-base-content'"
               data-tip="Homepage" @click="router.push('/home')">
               <!-- Home icon -->
@@ -107,26 +106,23 @@
             </button>
           </li>
           <li>
-            <button class="is-drawer-close:tooltip is-drawer-close:tooltip-right hover:text-primary "
-              data-tip="Channels" @click="router.push('/channels')">
+            <button
+              class=" p-2 is-drawer-close:tooltip is-drawer-close:tooltip-right  hover:bg-linear-to-b from-primary via-accent to-secondary  rounded-3xl flex items-center justify-center"
+              data-tip="Channels" @click="router.push('/channels')"
+              :class="route.name == 'channels' ? 'bg-linear-to-b from-primary via-accent to-secondary text-white ' : 'text-base-content'">
               <!-- Channels icon -->
-              <HugeiconsIcon :icon="Tv01Icon" :size="42" color="currentColor" />
+              <HugeiconsIcon :icon="Tv01Icon" :size="36" color="currentColor" />
               <span class="is-drawer-close:hidden">Channels</span>
             </button>
           </li>
+
           <li>
-            <button class="is-drawer-close:tooltip is-drawer-close:tooltip-right hover:text-primary " data-tip="Search"
-              @click="router.push('/search')">
-              <!-- Search icon -->
-              <HugeiconsIcon :icon="Search01Icon" :size="42" color="currentColor" />
-              <span class="is-drawer-close:hidden">Search</span>
-            </button>
-          </li>
-          <li>
-            <button class="is-drawer-close:tooltip is-drawer-close:tooltip-right hover:text-primary "
-              data-tip="Settings" @click="router.push('/settings')">
+            <button
+              class=" p-2 is-drawer-close:tooltip is-drawer-close:tooltip-right  hover:bg-linear-to-b from-primary via-accent to-secondary  rounded-3xl flex items-center justify-center"
+              data-tip="Settings" @click="router.push('/settings')"
+              :class="route.name == 'settings' ? 'bg-linear-to-b from-primary via-accent to-secondary text-white ' : 'text-base-content'">
               <!-- Settings icon -->
-              <HugeiconsIcon :icon="Settings02Icon" :size="42" color="currentColor" />
+              <HugeiconsIcon :icon="Settings02Icon" :size="36" color="currentColor" />
               <span class="is-drawer-close:hidden">Settings</span>
             </button>
           </li>
@@ -143,7 +139,7 @@ import { RouterView, useRoute, useRouter } from 'vue-router'
 import { useXtream } from '@/composables/useXtream'
 import { useProfileStore } from '@/stores/profiles'
 import { HugeiconsIcon } from '@hugeicons/vue'
-import { Home04Icon, Search01Icon, Settings02Icon, Tv01Icon } from '@hugeicons/core-free-icons'
+import { Home04Icon, Settings02Icon, Tv01Icon } from '@hugeicons/core-free-icons'
 
 const route = useRoute()
 const router = useRouter()

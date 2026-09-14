@@ -1,15 +1,67 @@
 <template>
-  <main class="relative isolate flex min-h-screen flex-col overflow-hidden bg-[#080a08] px-[7vw] py-[6vh]">
+  <main class="relative isolate flex h-dvh flex-col overflow-hidden px-[7vw] py-[6vh]">
     <div class="screen-grain absolute inset-0 -z-10" />
     <div class="absolute right-[8vw] top-[-30vh] -z-10 h-[70vh] w-[70vh] rounded-full bg-lime-300/10 blur-[130px]" />
     <header class="flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <img src="/logo.svg" alt="ArenaTV logo" class="w-12" />
+        <svg class="size-12 " viewBox="0 0 735 735" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g filter="url(#filter0_i_11_25)">
+            <path
+              d="M40 433C40 309.5 40 247.733 78.383 209.383C116.766 171.033 178.5 171 302 171H433C556.5 171 618.267 171 656.617 209.383C694.967 247.766 695 309.5 695 433C695 556.5 695 618.267 656.617 656.617C618.234 694.967 556.5 695 433 695H302C178.5 695 116.733 695 78.383 656.617C40.0327 618.234 40 556.5 40 433Z"
+              stroke="white" stroke-width="80" stroke-linecap="round" />
+            <path d="M269.25 72.75L367.5 171L498.5 40" stroke="white" stroke-width="80" stroke-linecap="round"
+              stroke-linejoin="round" />
+            <g filter="url(#filter1_i_11_25)">
+              <rect x="218" y="301" width="55" height="116" rx="27.5" fill="white" />
+            </g>
+            <g filter="url(#filter2_i_11_25)">
+              <rect x="470" y="301" width="55" height="116" rx="27.5" fill="white" />
+            </g>
+          </g>
+          <defs>
+            <filter id="filter0_i_11_25" x="0" y="0" width="735" height="739" filterUnits="userSpaceOnUse"
+              color-interpolation-filters="sRGB">
+              <feFlood flood-opacity="0" result="BackgroundImageFix" />
+              <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+              <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                result="hardAlpha" />
+              <feOffset dy="4" />
+              <feGaussianBlur stdDeviation="2" />
+              <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
+              <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
+              <feBlend mode="normal" in2="shape" result="effect1_innerShadow_11_25" />
+            </filter>
+            <filter id="filter1_i_11_25" x="218" y="301" width="55" height="120" filterUnits="userSpaceOnUse"
+              color-interpolation-filters="sRGB">
+              <feFlood flood-opacity="0" result="BackgroundImageFix" />
+              <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+              <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                result="hardAlpha" />
+              <feOffset dy="4" />
+              <feGaussianBlur stdDeviation="2" />
+              <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
+              <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
+              <feBlend mode="normal" in2="shape" result="effect1_innerShadow_11_25" />
+            </filter>
+            <filter id="filter2_i_11_25" x="470" y="301" width="55" height="120" filterUnits="userSpaceOnUse"
+              color-interpolation-filters="sRGB">
+              <feFlood flood-opacity="0" result="BackgroundImageFix" />
+              <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+              <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                result="hardAlpha" />
+              <feOffset dy="4" />
+              <feGaussianBlur stdDeviation="2" />
+              <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
+              <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
+              <feBlend mode="normal" in2="shape" result="effect1_innerShadow_11_25" />
+            </filter>
+          </defs>
+        </svg>
         <div>
           <div class="text-2xl font-black tracking-[.14em]">
             ARENA<span class="text-primary">TV</span>
           </div>
-          <p class="text-xs uppercase tracking-[.23em] text-white/45">Sport, in its natural habitat</p>
+
         </div>
       </div>
     </header>
@@ -31,40 +83,19 @@
         </div>
       </div>
 
-      <form @submit.prevent="connect" class="w-full max-w-lg space-y-4 border-l border-neutral pl-40 shadow-2xl">
+      <form @submit.prevent="connect"
+        class="w-full max-w-lg space-y-4 p-4 rounded-3xl glassmorphism flex flex-col items-center justify-center">
         <h2 class="text-2xl font-bold">Welcome back</h2>
         <p class="mt-2 text-sm text-white/50">Connect your IPTV service</p>
 
-        <input
-          id="server"
-          v-model="host"
-          tabindex="0"
-          autocomplete="url"
-          placeholder="https://provider.example:8080"
-          class="input input-primary w-full"
-        />
-        <input
-          v-model="profileName"
-          tabindex="0"
-          autocomplete="nickname"
-          class="input input-primary w-full"
-          placeholder="profile name (optional)"
-        />
-        <input
-          v-model="user"
-          tabindex="0"
-          autocomplete="username"
-          class="input input-primary w-full"
-          placeholder="username"
-        />
-        <input
-          v-model="pass"
-          tabindex="0"
-          type="password"
-          autocomplete="current-password"
-          class="input input-primary w-full"
-          placeholder="password"
-        />
+        <input id="server" v-model="host" tabindex="0" autocomplete="url" placeholder="https://provider.example:8080"
+          class="input input-primary w-full" />
+        <input v-model="profileName" tabindex="0" autocomplete="nickname" class="input input-primary w-full"
+          placeholder="profile name (optional)" />
+        <input v-model="user" tabindex="0" autocomplete="username" class="input input-primary w-full"
+          placeholder="username" />
+        <input v-model="pass" tabindex="0" type="password" autocomplete="current-password"
+          class="input input-primary w-full" placeholder="password" />
 
         <label class="label flex items-center justify-between px-0 text-white/70">
           <span>Save this account as a profile</span>

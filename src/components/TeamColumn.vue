@@ -1,5 +1,5 @@
 <template>
-  <div class="flex min-w-0 max-w-[13rem] flex-col items-center gap-3">
+  <div class="flex min-w-0 max-w-52 flex-col items-center gap-3">
     <span class="flex size-20 items-center justify-center overflow-hidden rounded-2xl bg-white/10 sm:size-24">
       <img v-if="participant?.image_path" :src="participant.image_path" :alt="''" loading="lazy" decoding="async"
         referrerpolicy="no-referrer" class="size-full object-contain p-3"
